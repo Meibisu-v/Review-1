@@ -122,7 +122,11 @@ def decode(cipher, inp, key, output):
         encode_out = decode_caesar(int(key), text)
     elif cipher == 'vigenere':
         encode_out = decode_vigenere(key, text)
-    output.write(encode_out)
+    if output == sys.stdout:
+        print(encode_out)
+    else:
+        file = open(output, 'w')
+        file.write(encode_out)
 
 
 def hack(inp, output, model):
