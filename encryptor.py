@@ -57,9 +57,9 @@ def encode_vigenere(key, text):
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
         if text[i].islower():
-            out += (alphabet[(alphabet.find(text[i]) + alphabet.find(new_key[i])) % lenAlph])
+            out += (alphabet[(alphabet.find(text[i]) + alphabet.find(new_key.lower()[i])) % lenAlph])
         elif text[i].isupper():
-            out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key[i])) % lenAlph])
+            out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key.upper()[i])) % lenAlph])
         else:
             out += (text[i])
     return out
@@ -69,7 +69,7 @@ def decode_caesar(key, text):
     out = str()
     for i in text:
         if i.islower():
-            t = alphabet.find(i) - key;
+            t = alphabet.find(i) - key
             if t < 0:
                 t += lenAlph
             out += (alphabet[t % lenAlph])
@@ -88,12 +88,13 @@ def decode_vigenere(key, text):
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
         if text[i].islower():
-            t = alphabet.find(text[i]) - alphabet.find(new_key[i]);
+
+            t = alphabet.find(text[i]) - alphabet.find(new_key.lower()[i])
             if t < 0:
                 t += lenAlph
             out += (alphabet[t % lenAlph])
         elif text[i].isupper():
-            t = ALPHABET.find(text[i]) - ALPHABET.find(new_key[i])
+            t = ALPHABET.find(text[i]) - ALPHABET.find(new_key.upper()[i])
             if t < 0:
                 t += lenAlph
             out += (ALPHABET[t % lenAlph])
