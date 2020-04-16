@@ -61,6 +61,7 @@ def encode_vigenere(key, text):
         elif text[i].isupper():
             out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key.upper()[i])) % lenAlph])
         else:
+            new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
     return out
 
@@ -88,7 +89,6 @@ def decode_vigenere(key, text):
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
         if text[i].islower():
-
             t = alphabet.find(text[i]) - alphabet.find(new_key.lower()[i])
             if t < 0:
                 t += lenAlph
@@ -99,6 +99,7 @@ def decode_vigenere(key, text):
                 t += lenAlph
             out += (ALPHABET[t % lenAlph])
         else:
+            new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
     return out
 
