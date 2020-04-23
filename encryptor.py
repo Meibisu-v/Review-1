@@ -2,7 +2,7 @@ import sys
 import string
 import argparse
 import json
-
+from collections import defaultdict
 
 alphabet = string.ascii_lowercase
 ALPHABET = string.ascii_uppercase
@@ -15,14 +15,13 @@ def get_text(input_file):
     else:
         file = open(input_file, 'r')
         text = file.read()
+        file.close()
     return text
 
 
 def count_frequency(text):
-    model = dict()
+    model = defaultdict(int)
     alpha_count = 0
-    for i in alphabet:
-        model[i] = 0
     for i in text:
         if i.islower() or i.isupper():
             alpha_count += 1
@@ -38,15 +37,18 @@ def print_diagram(dict_, out):
     else:
         file = open(out, 'w')
         file.write(json.dumps(dict_))
+        file.close()
 
 
 def encode_caesar(key, text):
     out = str()
     for i in text:
-        if i.islower():
-            out += (alphabet[(alphabet.find(i) + int(key)) % len_alph])
-        elif i.isupper():
-            out += (ALPHABET[(ALPHABET.find(i) + int(key)) % len_alph])
+        if i.isalpha():
+            letter = alphabet[(alphabet.find(i.lower()) + int(key)) % len_alph]
+            if i.islower():
+                out += letter
+            else:
+                out += letter.upper()
         else:
             out += i
     return out
@@ -56,10 +58,12 @@ def encode_vigenere(key, text):
     out = str()
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
-        if text[i].islower():
-            out += (alphabet[(alphabet.find(text[i]) + alphabet.find(new_key.lower()[i])) % len_alph])
-        elif text[i].isupper():
-            out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key.upper()[i])) % len_alph])
+        if text[i].isalpha():
+            letter = alphabet[(alphabet.find(text[i].lower()) + alphabet.find(new_key.lower()[i])) % len_alph]
+            if text[i].islower():
+                out += letter
+            else:
+                out += letter.upper()
         else:
             new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
@@ -69,16 +73,15 @@ def encode_vigenere(key, text):
 def decode_caesar(key, text):
     out = str()
     for i in text:
-        if i.islower():
-            t = alphabet.find(i) - key
+        if i.isalpha():
+            t = alphabet.find(i.lower()) - key
             if t < 0:
                 t += len_alph
-            out += (alphabet[t % len_alph])
-        elif i.isupper():
-            t = ALPHABET.find(i) - key
-            if t < 0:
-                t += len_alph
-            out += (ALPHABET[t % len_alph])
+            letter = alphabet[t % len_alph]
+            if i.islower():
+                out += letter
+            else:
+                out += letter.upper()
         else:
             out += i
     return out
@@ -88,16 +91,15 @@ def decode_vigenere(key, text):
     out = str()
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
-        if text[i].islower():
-            t = alphabet.find(text[i]) - alphabet.find(new_key.lower()[i])
+        if text[i].isalpha():
+            t = alphabet.find(text[i].lower()) - alphabet.find(new_key.lower()[i])
             if t < 0:
                 t += len_alph
-            out += (alphabet[t % len_alph])
-        elif text[i].isupper():
-            t = ALPHABET.find(text[i]) - ALPHABET.find(new_key.upper()[i])
-            if t < 0:
-                t += len_alph
-            out += (ALPHABET[t % len_alph])
+            letter = alphabet[t % len_alph]
+            if text[i].islower():
+                out += letter
+            else:
+                out += letter.upper()
         else:
             new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
@@ -110,6 +112,7 @@ def print_output(encode_out, output):
     else:
         file = open(output, 'w')
         file.write(encode_out)
+        file.close()
 
 def encode(cipher, inp, key, output):
     text = get_text(inp)
