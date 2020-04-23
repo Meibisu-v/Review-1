@@ -6,7 +6,7 @@ import json
 
 alphabet = string.ascii_lowercase
 ALPHABET = string.ascii_uppercase
-lenAlph = len(alphabet)
+len_alph = len(alphabet)
 
 
 def get_text(input_file):
@@ -44,9 +44,9 @@ def encode_caesar(key, text):
     out = str()
     for i in text:
         if i.islower():
-            out += (alphabet[(alphabet.find(i) + int(key)) % lenAlph])
+            out += (alphabet[(alphabet.find(i) + int(key)) % len_alph])
         elif i.isupper():
-            out += (ALPHABET[(ALPHABET.find(i) + int(key)) % lenAlph])
+            out += (ALPHABET[(ALPHABET.find(i) + int(key)) % len_alph])
         else:
             out += i
     return out
@@ -57,9 +57,9 @@ def encode_vigenere(key, text):
     new_key = key * (len(text) // len(key) + 1)
     for i in range(len(text)):
         if text[i].islower():
-            out += (alphabet[(alphabet.find(text[i]) + alphabet.find(new_key.lower()[i])) % lenAlph])
+            out += (alphabet[(alphabet.find(text[i]) + alphabet.find(new_key.lower()[i])) % len_alph])
         elif text[i].isupper():
-            out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key.upper()[i])) % lenAlph])
+            out += (ALPHABET[(ALPHABET.find(text[i]) + ALPHABET.find(new_key.upper()[i])) % len_alph])
         else:
             new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
@@ -72,13 +72,13 @@ def decode_caesar(key, text):
         if i.islower():
             t = alphabet.find(i) - key
             if t < 0:
-                t += lenAlph
-            out += (alphabet[t % lenAlph])
+                t += len_alph
+            out += (alphabet[t % len_alph])
         elif i.isupper():
             t = ALPHABET.find(i) - key
             if t < 0:
-                t += lenAlph
-            out += (ALPHABET[t % lenAlph])
+                t += len_alph
+            out += (ALPHABET[t % len_alph])
         else:
             out += i
     return out
@@ -91,18 +91,25 @@ def decode_vigenere(key, text):
         if text[i].islower():
             t = alphabet.find(text[i]) - alphabet.find(new_key.lower()[i])
             if t < 0:
-                t += lenAlph
-            out += (alphabet[t % lenAlph])
+                t += len_alph
+            out += (alphabet[t % len_alph])
         elif text[i].isupper():
             t = ALPHABET.find(text[i]) - ALPHABET.find(new_key.upper()[i])
             if t < 0:
-                t += lenAlph
-            out += (ALPHABET[t % lenAlph])
+                t += len_alph
+            out += (ALPHABET[t % len_alph])
         else:
             new_key = new_key[:i] + ' ' + new_key[i:]
             out += (text[i])
     return out
 
+
+def print_output(encode_out, output):
+    if output == sys.stdout:
+        print(encode_out)
+    else:
+        file = open(output, 'w')
+        file.write(encode_out)
 
 def encode(cipher, inp, key, output):
     text = get_text(inp)
@@ -111,11 +118,7 @@ def encode(cipher, inp, key, output):
         encode_out = encode_caesar(key, text)
     elif cipher == 'vigenere':
         encode_out = encode_vigenere(key, text)
-    if output == sys.stdout:
-        print(encode_out)
-    else:
-        file = open(output, 'w')
-        file.write(encode_out)
+    print_output(encode_out, output)
 
 
 def decode(cipher, inp, key, output):
@@ -124,11 +127,7 @@ def decode(cipher, inp, key, output):
         encode_out = decode_caesar(int(key), text)
     elif cipher == 'vigenere':
         encode_out = decode_vigenere(key, text)
-    if output == sys.stdout:
-        print(encode_out)
-    else:
-        file = open(output, 'w')
-        file.write(encode_out)
+    print_output(encode_out, output)
 
 
 def hack(inp, output, model):
@@ -137,11 +136,11 @@ def hack(inp, output, model):
     get_inp = get_text(inp)
     text = count_frequency(get_inp)
     cur_dict = dict()
-    min_dist = lenAlph
+    min_dist = len_alph
     min_key = 0
-    for index in range(lenAlph):
-        for j in range(lenAlph):
-            cur_dict[alphabet[j]] = text[alphabet[(j - index) % lenAlph]]
+    for index in range(len_alph):
+        for j in range(len_alph):
+            cur_dict[alphabet[j]] = text[alphabet[(j - index) % len_alph]]
         dist = 0
         for alpha in alphabet:
             dist += model_freq[alpha] - cur_dict[alpha]
@@ -149,22 +148,11 @@ def hack(inp, output, model):
             min_dist = dist
             min_key = index
     code = encode_caesar(min_key, get_inp)
-    if output == sys.stdout:
-        print(code)
-    else:
-        file = open(output, 'w')
-        file.write(code)
+    print_output(code, output)
 # ---------------------------------------------------
 
 
 def get_args():
-    action = None
-    cipher = None
-    key = None
-    inp = None
-    output = None
-    text = None
-    model = None
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(dest='action')
     encode_ = subs.add_parser('encode', help='Encode')
