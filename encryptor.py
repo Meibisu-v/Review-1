@@ -13,9 +13,8 @@ def get_text(input_file):
     if input_file == sys.stdin:
         text = input()
     else:
-        file = open(input_file, 'r')
-        text = file.read()
-        file.close()
+        with open(input_file, 'r') as file:
+            text = file.read()
     return text
 
 
@@ -35,84 +34,80 @@ def print_diagram(dict_, out):
     if out == sys.stdout:
         print(json.dumps(dict_))
     else:
-        file = open(out, 'w')
-        file.write(json.dumps(dict_))
-        file.close()
+        with open(out, 'w') as file:
+            file.write(json.dumps(dict_))
 
 
 def encode_caesar(key, text):
-    out = str()
+    out = []
     for i in text:
         if i.isalpha():
             letter = alphabet[(alphabet.find(i.lower()) + int(key)) % len_alph]
-            if i.islower():
-                out += letter
-            else:
-                out += letter.upper()
+            out.append(append_letter(i, letter))
         else:
-            out += i
-    return out
+            out.append(i)
+    return ''.join(out)
 
 
 def encode_vigenere(key, text):
-    out = str()
+    out = []
     new_key = key * (len(text) // len(key) + 1)
-    for i in range(len(text)):
-        if text[i].isalpha():
-            letter = alphabet[(alphabet.find(text[i].lower()) + alphabet.find(new_key.lower()[i])) % len_alph]
-            if text[i].islower():
-                out += letter
-            else:
-                out += letter.upper()
+    index_key = 0
+    for i, char in enumerate(text):
+        if char.isalpha():
+            letter = alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
+            out.append(append_letter(char, letter))
+            index_key += 1
         else:
-            new_key = new_key[:i] + ' ' + new_key[i:]
-            out += (text[i])
-    return out
+            out.append(char)
+    return ''.join(out)
 
 
 def decode_caesar(key, text):
-    out = str()
+    out = []
     for i in text:
         if i.isalpha():
-            t = alphabet.find(i.lower()) - key
+            t = alphabet.find(i.lower()) - int(key)
             if t < 0:
                 t += len_alph
             letter = alphabet[t % len_alph]
-            if i.islower():
-                out += letter
-            else:
-                out += letter.upper()
+            out.append(append_letter(i, letter))
         else:
-            out += i
-    return out
+            out.append(i)
+    return ''.join(out)
+
+
+def append_letter(i, letter):
+    if i.islower():
+        return letter
+    else:
+        return letter.upper
 
 
 def decode_vigenere(key, text):
-    out = str()
+    out = []
     new_key = key * (len(text) // len(key) + 1)
-    for i in range(len(text)):
-        if text[i].isalpha():
-            t = alphabet.find(text[i].lower()) - alphabet.find(new_key.lower()[i])
+    index_key = 0
+    for i, char in enumerate(text):
+        if char.isalpha():
+            t = alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
             if t < 0:
                 t += len_alph
             letter = alphabet[t % len_alph]
-            if text[i].islower():
-                out += letter
-            else:
-                out += letter.upper()
+            out.append(append_letter(char, letter))
+            index_key += 1
         else:
-            new_key = new_key[:i] + ' ' + new_key[i:]
-            out += (text[i])
-    return out
+            out.append(text[i])
+    return ''.join(out)
 
 
 def print_output(encode_out, output):
     if output == sys.stdout:
         print(encode_out)
     else:
-        file = open(output, 'w')
-        file.write(encode_out)
-        file.close()
+        with open(output, 'w') as file:
+            file.write(encode_out)
+
 
 def encode(cipher, inp, key, output):
     text = get_text(inp)
@@ -146,7 +141,7 @@ def hack(inp, output, model):
             cur_dict[alphabet[j]] = text[alphabet[(j - index) % len_alph]]
         dist = 0
         for alpha in alphabet:
-            dist += model_freq[alpha] - cur_dict[alpha]
+            dist += (model_freq[alpha] - cur_dict[alpha])**2
         if dist < min_dist:
             min_dist = dist
             min_key = index
