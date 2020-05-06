@@ -11,7 +11,7 @@ len_alph = len(alphabet)
 
 
 def get_text(input_file):
-    if input_file == None:
+    if input_file is None:
         text = sys.stdin.read()
     else:
         with open(input_file, 'r') as file:
@@ -32,19 +32,19 @@ def count_frequency(text):
 
 
 def caesar_encryptor(key, text, decode):
-    out = []
-    for i in text:
-        if i.isalpha():
+    out = list(text)
+    for i, char in enumerate(text):
+        if char.isalpha():
             if decode:
-                t = alphabet.find(i.lower()) - int(key)
+                t = alphabet.find(char.lower()) - int(key)
                 if t < 0:
                     t += len_alph
                 letter = alphabet[t % len_alph]
             else:
-                letter = alphabet[(alphabet.find(i.lower()) + int(key)) % len_alph]
-            out.append(append_letter(i, letter))
+                letter = alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
+            out[i] = append_letter(char, letter)
         else:
-            out.append(i)
+            out[i] = char
     return ''.join(out)
 
 
@@ -68,15 +68,15 @@ def vigenere_encryptor(key, text, decode):
     return ''.join(out)
 
 
-def append_letter(i, letter):
-    if i.islower():
+def append_letter(char, letter):
+    if char.islower():
         return letter
     else:
         return letter.upper()
 
 
-def print_output(encode_out, output, diagram):
-    if output == None:
+def print_output(encode_out, output, diagram=False):
+    if output is None:
         if diagram:
             print(json.dumps(encode_out))
         else:
@@ -89,41 +89,33 @@ def print_output(encode_out, output, diagram):
                 file.write(encode_out)
 
 
-def select_function(cipher, inp, key, output, decode):
+def select_function(cipher, inp, key, output, decode=True):
     text = get_text(inp)
     encode_out = ""
     if cipher == 'caesar':
-        if decode:
-            encode_out = caesar_encryptor(int(key), text, True)
-        else:
-            encode_out = caesar_encryptor(key, text, False)
+        encode_out = caesar_encryptor(int(key), text, decode is True)
     elif cipher == 'vigenere':
-        if decode:
-            encode_out = vigenere_encryptor(key, text, True)
-        else:
-            encode_out = vigenere_encryptor(key, text, False)
-    print_output(encode_out, output, False)
+        encode_out = vigenere_encryptor(key, text, decode is True)
+    print_output(encode_out, output)
 
 
 def hack(inp, output, model):
     with open(model, 'r') as model_file:
         model_freq = json.load(model_file)
-    get_inp = get_text(inp)
-    text = count_frequency(get_inp)
-    cur_dict = dict()
+    text = count_frequency(get_text(inp))
     min_key = -1
-    min_dist = int
+    min_dist = 0
     for index in range(len_alph):
-        for j in range(len_alph):
-            cur_dict[alphabet[j]] = text[alphabet[(j - index) % len_alph]]
         dist = 0
+        shift = 0
         for alpha in alphabet:
-            dist += (model_freq[alpha] - cur_dict[alpha]) ** 2
+            dist += (model_freq[alpha] - text[alphabet[(shift - index) % len_alph]]) ** 2
+            shift += 1
         if dist < min_dist or min_key == -1:
             min_dist = dist
             min_key = index
     code = caesar_encryptor(min_key, get_inp, False)
-    print_output(code, output, False)
+    print_output(code, output)
 # ---------------------------------------------------
 
 
@@ -158,10 +150,8 @@ def get_args():
 
 def main():
     args = get_args()
-    if args.action == 'encode':
-        select_function(args.cipher, args.input, args.key, args.output, False)
-    if args.action == 'decode':
-        select_function(args.cipher, args.input, args.key, args.output, True)
+    if args.action == 'encode' or args.action == 'decode':
+        select_function(args.cipher, args.input, args.key, args.output, args.action == 'decode')
     if args.action == 'train':
         print_output(count_frequency(get_text(args.input)), args.model, True)
     if args.action == 'hack':
