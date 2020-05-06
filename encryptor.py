@@ -23,7 +23,7 @@ def count_frequency(text):
     model = defaultdict(int)
     alpha_count = 0
     for i in text:
-        if i.islower() or i.isupper():
+        if i.isalpha():
             alpha_count += 1
             model[i.lower()] += 1
     for i in alphabet:
