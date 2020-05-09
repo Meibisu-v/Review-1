@@ -93,9 +93,9 @@ def select_function(cipher, inp, key, output, decode=True):
     text = get_text(inp)
     encode_out = ""
     if cipher == 'caesar':
-        encode_out = caesar_encryptor(int(key), text, decode is True)
+        encode_out = caesar_encryptor(int(key), text, decode)
     elif cipher == 'vigenere':
-        encode_out = vigenere_encryptor(key, text, decode is True)
+        encode_out = vigenere_encryptor(key, text, decode)
     print_output(encode_out, output)
 
 
