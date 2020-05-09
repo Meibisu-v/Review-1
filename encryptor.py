@@ -31,38 +31,29 @@ def count_frequency(text):
     return model
 
 
-def caesar_encryptor(key, text, decode):
-    out = list(text)
-    for i, char in enumerate(text):
-        if char.isalpha():
-            if decode:
-                t = alphabet.find(char.lower()) - int(key)
-                if t < 0:
-                    t += len_alph
-                letter = alphabet[t % len_alph]
-            else:
-                letter = alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
-            out[i] = append_letter(char, letter)
-        else:
-            out[i] = char
-    return ''.join(out)
-
-
-def vigenere_encryptor(key, text, decode):
+def encryptor(key, text, decode, vigenere=True):
     out = []
-    new_key = key * (len(text) // len(key) + 1)
-    index_key = 0
+    if vigenere:
+        new_key = key * (len(text) // len(key) + 1)
+        index_key = 0
     for i, char in enumerate(text):
         if char.isalpha():
             if decode:
-                t = alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
+                if vigenere:
+                    t = alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
+                elif not vigenere:
+                    t = alphabet.find(char.lower()) - int(key)
                 if t < 0:
                     t += len_alph
                 letter = alphabet[t % len_alph]
             else:
-                letter = alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
+                if vigenere:
+                    letter = alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
+                elif not vigenere:
+                    letter = alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
             out.append(append_letter(char, letter))
-            index_key += 1
+            if vigenere:
+                index_key += 1
         else:
             out.append(char)
     return ''.join(out)
@@ -93,16 +84,17 @@ def select_function(cipher, inp, key, output, decode=True):
     text = get_text(inp)
     encode_out = ""
     if cipher == 'caesar':
-        encode_out = caesar_encryptor(int(key), text, decode)
+        encode_out = encryptor(int(key), text, decode, False)
     elif cipher == 'vigenere':
-        encode_out = vigenere_encryptor(key, text, decode)
+        encode_out = encryptor(key, text, decode)
     print_output(encode_out, output)
 
 
 def hack(inp, output, model):
     with open(model, 'r') as model_file:
         model_freq = json.load(model_file)
-    text = count_frequency(get_text(inp))
+    get_inp = get_text(inp) #get_inp используется дальше в коде
+    text = count_frequency(get_inp) 
     min_key = -1
     min_dist = 0
     for index in range(len_alph):
@@ -114,7 +106,7 @@ def hack(inp, output, model):
         if dist < min_dist or min_key == -1:
             min_dist = dist
             min_key = index
-    code = caesar_encryptor(min_key, get_inp, False)
+    code = encryptor(min_key, get_inp, False, False)
     print_output(code, output)
 # ---------------------------------------------------
 
