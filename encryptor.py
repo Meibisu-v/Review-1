@@ -41,7 +41,7 @@ def encryptor(key, text, decode, vigenere=True):
             if decode:
                 if vigenere:
                     t = alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
-                elif not vigenere:
+                else:
                     t = alphabet.find(char.lower()) - int(key)
                 if t < 0:
                     t += len_alph
@@ -49,7 +49,7 @@ def encryptor(key, text, decode, vigenere=True):
             else:
                 if vigenere:
                     letter = alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
-                elif not vigenere:
+                else:
                     letter = alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
             out.append(append_letter(char, letter))
             if vigenere:
