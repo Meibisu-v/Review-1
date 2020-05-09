@@ -93,7 +93,7 @@ def select_function(cipher, inp, key, output, decode=True):
 def hack(inp, output, model):
     with open(model, 'r') as model_file:
         model_freq = json.load(model_file)
-    get_inp = get_text(inp) #get_inp используется дальше в коде
+    get_inp = get_text(inp) #get_inp используется дальше в функции
     text = count_frequency(get_inp) 
     min_key = -1
     min_dist = 0
