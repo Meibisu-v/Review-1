@@ -40,23 +40,38 @@ def encryptor(key, text, decode, vigenere=True):
         if char.isalpha():
             if decode:
                 if vigenere:
-                    t = alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
+                    t = vigenere_next_index(char, new_key, index_key)
                 else:
-                    t = alphabet.find(char.lower()) - int(key)
+                    t = caesar_next_char(char, key)
                 if t < 0:
                     t += len_alph
                 letter = alphabet[t % len_alph]
             else:
                 if vigenere:
-                    letter = alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
+                    letter = vigenere_next_letter(char, new_key, index_key)
                 else:
-                    letter = alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
+                    letter = caesar_next_char(char, key, False)
             out.append(append_letter(char, letter))
             if vigenere:
                 index_key += 1
         else:
             out.append(char)
     return ''.join(out)
+
+
+def vigenere_next_index(char, new_key, index_key):
+    return alphabet.find(char.lower()) - alphabet.find(new_key.lower()[index_key])
+
+
+def vigenere_next_letter(char, new_key, index_key):
+    return alphabet[(alphabet.find(char.lower()) + alphabet.find(new_key.lower()[index_key])) % len_alph]
+
+
+def caesar_next_char(char, key, decode=True):
+    if decode:
+        return alphabet.find(char.lower()) - int(key)
+    else:
+        return alphabet[(alphabet.find(char.lower()) + int(key)) % len_alph]
 
 
 def append_letter(char, letter):
