@@ -39,18 +39,14 @@ def encryptor(key, text, decode, vigenere=True):
     for i, char in enumerate(text):
         if char.isalpha():
             if decode:
-                if vigenere:
-                    t = vigenere_next_index(char, new_key, index_key)
-                else:
-                    t = caesar_next_char(char, key)
+                t = (vigenere_next_index(char, new_key, index_key) if vigenere 
+                    else caesar_next_char(char, key))
                 if t < 0:
                     t += len_alph
                 letter = alphabet[t % len_alph]
             else:
-                if vigenere:
-                    letter = vigenere_next_letter(char, new_key, index_key)
-                else:
-                    letter = caesar_next_char(char, key, False)
+                letter = (vigenere_next_letter(char, new_key, index_key) if vigenere 
+                    else caesar_next_char(char, key, False))
             out.append(append_letter(char, letter))
             if vigenere:
                 index_key += 1
